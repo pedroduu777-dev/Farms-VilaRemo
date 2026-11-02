@@ -58,10 +58,10 @@ export const ProofImage: React.FC<ProofImageProps> = ({
 interface ProofLightboxModalProps {
   delivery: FarmDelivery | null;
   onClose: () => void;
-  onUpdateAudit: (id: string, status: AuditStatus) => Promise<void>;
-  onResendWebhook: (id: string) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
-  resendingId: string | null;
+  onUpdateAudit?: (id: string, status: AuditStatus) => Promise<void>;
+  onResendWebhook?: (id: string) => Promise<void>;
+  onDelete?: (id: string) => Promise<void>;
+  resendingId?: string | null;
 }
 
 export const ProofLightboxModal: React.FC<ProofLightboxModalProps> = ({
@@ -204,62 +204,70 @@ export const ProofLightboxModal: React.FC<ProofLightboxModalProps> = ({
             </div>
 
             {/* Leadership Audit Controls */}
-            <div>
-              <span className="text-xs text-slate-400 block mb-2">
-                Conferência da Gerência ({delivery.auditStatus})
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => onUpdateAudit(delivery.id, AuditStatus.APROVADO)}
-                  className={`py-2 px-3 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 border transition-colors cursor-pointer whitespace-nowrap ${
-                    delivery.auditStatus === AuditStatus.APROVADO
-                      ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-300'
-                      : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
-                  }`}
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  Aprovar Farm
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onUpdateAudit(delivery.id, AuditStatus.RECUSADO)}
-                  className={`py-2 px-3 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 border transition-colors cursor-pointer whitespace-nowrap ${
-                    delivery.auditStatus === AuditStatus.RECUSADO
-                      ? 'bg-rose-500/15 border-rose-500/50 text-rose-300'
-                      : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
-                  }`}
-                >
-                  <XCircle className="w-3.5 h-3.5" />
-                  Recusar Print
-                </button>
+            {onUpdateAudit && (
+              <div>
+                <span className="text-xs text-slate-400 block mb-2">
+                  Conferência da Gerência ({delivery.auditStatus})
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onUpdateAudit(delivery.id, AuditStatus.APROVADO)}
+                    className={`py-2 px-3 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 border transition-colors cursor-pointer whitespace-nowrap ${
+                      delivery.auditStatus === AuditStatus.APROVADO
+                        ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-300'
+                        : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Aprovar Farm
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onUpdateAudit(delivery.id, AuditStatus.RECUSADO)}
+                    className={`py-2 px-3 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 border transition-colors cursor-pointer whitespace-nowrap ${
+                      delivery.auditStatus === AuditStatus.RECUSADO
+                        ? 'bg-rose-500/15 border-rose-500/50 text-rose-300'
+                        : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    <XCircle className="w-3.5 h-3.5" />
+                    Recusar Print
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
-          <div className="pt-6 mt-6 border-t border-slate-800 flex items-center gap-2">
-            <button
-              type="button"
-              disabled={isResending}
-              onClick={() => onResendWebhook(delivery.id)}
-              className="flex-1 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
-            >
-              <Send className="w-3.5 h-3.5" />
-              {isResending ? 'Enviando...' : 'Reenviar ao Discord'}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                onDelete(delivery.id);
-                onClose();
-              }}
-              className="py-2.5 px-3 bg-slate-900 hover:bg-rose-950/60 text-slate-400 hover:text-rose-300 border border-slate-800 rounded-lg transition-colors cursor-pointer"
-              title="Excluir entrega"
-              aria-label="Excluir entrega"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
+          {(onResendWebhook || onDelete) && (
+            <div className="pt-6 mt-6 border-t border-slate-800 flex items-center gap-2">
+              {onResendWebhook && (
+                <button
+                  type="button"
+                  disabled={isResending}
+                  onClick={() => onResendWebhook(delivery.id)}
+                  className="flex-1 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  {isResending ? 'Enviando...' : 'Reenviar ao Discord'}
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onDelete(delivery.id);
+                    onClose();
+                  }}
+                  className="py-2.5 px-3 bg-slate-900 hover:bg-rose-950/60 text-slate-400 hover:text-rose-300 border border-slate-800 rounded-lg transition-colors cursor-pointer"
+                  title="Excluir entrega"
+                  aria-label="Excluir entrega"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

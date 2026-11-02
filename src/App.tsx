@@ -179,8 +179,8 @@ export function App() {
     } catch {
       // Ignore session storage error
     }
-    setViewMode('user');
-    showToast('success', 'Sessão de ADM bloqueada. Retornado ao modo de usuário.');
+    setViewMode('landing');
+    showToast('success', 'Sessão de ADM bloqueada. Retornado à página inicial.');
   };
 
   const handleMemberAuthSuccess = (member: MemberAccount) => {

@@ -42,21 +42,26 @@ function formatPtBrTimestamp(isoStr: string): string {
 }
 
 function dataUrlToBlob(dataUrl: string): { blob: Blob; ext: string } | null {
-  const match = dataUrl.match(/^data:(image\/([a-zA-Z0-9+.-]+));base64,(.+)$/);
-  if (!match) return null;
-  const mimeType = match[1];
-  const rawExt = match[2].toLowerCase();
-  const ext = rawExt === 'png' ? 'png' : rawExt === 'webp' ? 'webp' : 'jpg';
-  const base64Data = match[3];
+  try {
+    const match = dataUrl.match(/^data:(image\/([a-zA-Z0-9+.-]+));base64,(.+)$/);
+    if (!match) return null;
+    const mimeType = match[1];
+    const rawExt = match[2].toLowerCase();
+    const ext = rawExt === 'png' ? 'png' : rawExt === 'webp' ? 'webp' : 'jpg';
+    const base64Data = match[3];
 
-  const byteCharacters = atob(base64Data);
-  const byteNumbers = new Array(byteCharacters.length);
-  for (let i = 0; i < byteCharacters.length; i += 1) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i);
+    const byteCharacters = atob(base64Data);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i += 1) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: mimeType });
+    return { blob, ext };
+  } catch (err) {
+    console.warn('Erro ao converter dataUrl para Blob:', err);
+    return null;
   }
-  const byteArray = new Uint8Array(byteNumbers);
-  const blob = new Blob([byteArray], { type: mimeType });
-  return { blob, ext };
 }
 
 /**
@@ -346,46 +351,39 @@ export async function dispatchDeliveryToDiscord(
   }
 
   try {
-    let targetEndpoint = url.includes('?') ? `${url}&wait=true` : `${url}?wait=true`;
+    const rootEndpoint = url.includes('?') ? `${url}&wait=true` : `${url}?wait=true`;
+    let targetEndpoint = rootEndpoint;
     if (activeThread) {
       targetEndpoint += `&thread_id=${activeThread}`;
     }
 
-    let response: Response;
-
-    if (fileBlob) {
-      const formData = new FormData();
-      formData.append('payload_json', JSON.stringify(discordPayload));
-      formData.append('files[0]', fileBlob, attachmentFileName);
-      response = await fetch(targetEndpoint, {
-        method: 'POST',
-        body: formData,
-      });
-    } else {
-      response = await fetch(targetEndpoint, {
+    const sendRequest = async (endpoint: string, currentPayload: Record<string, unknown>) => {
+      if (fileBlob) {
+        const formData = new FormData();
+        formData.append('payload_json', JSON.stringify(currentPayload));
+        formData.append('files[0]', fileBlob, attachmentFileName);
+        return fetch(endpoint, { method: 'POST', body: formData });
+      }
+      return fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(discordPayload),
+        body: JSON.stringify(currentPayload),
       });
-    }
+    };
 
-    // Se falhou por causa de thread_name em canal comum, tentar novamente sem thread_name
-    if (!response.ok && response.status === 400 && discordPayload.thread_name) {
-      delete discordPayload.thread_name;
-      if (fileBlob) {
-        const retryFormData = new FormData();
-        retryFormData.append('payload_json', JSON.stringify(discordPayload));
-        retryFormData.append('files[0]', fileBlob, attachmentFileName);
-        response = await fetch(targetEndpoint, {
-          method: 'POST',
-          body: retryFormData,
-        });
-      } else {
-        response = await fetch(targetEndpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(discordPayload),
-        });
+    let response = await sendRequest(targetEndpoint, discordPayload);
+
+    // Se falhar (ex: HTTP 400, 404 por canal/thread desconhecido "code 10003" ou canal comum rejeitando thread_name)
+    if (!response.ok) {
+      // Tentativa de Fallback 1: se usava thread_id antiga ou deletada, tenta no canal principal sem thread_id
+      if (activeThread) {
+        response = await sendRequest(rootEndpoint, discordPayload);
+      }
+
+      // Tentativa de Fallback 2: se ainda falhar e tinha thread_name, remove thread_name e tenta no canal principal
+      if (!response.ok && discordPayload.thread_name) {
+        delete discordPayload.thread_name;
+        response = await sendRequest(rootEndpoint, discordPayload);
       }
     }
 
@@ -400,7 +398,7 @@ export async function dispatchDeliveryToDiscord(
     }
 
     const resJson = await response.json().catch(() => ({}));
-    const returnedThreadId = resJson.channel_id || activeThread;
+    const returnedThreadId = resJson.channel_id || resJson.id;
 
     return {
       ok: true,

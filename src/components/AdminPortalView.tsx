@@ -1085,6 +1085,9 @@ export const AdminPortalView: React.FC<AdminPortalViewProps> = ({
       <ProofLightboxModal
         delivery={lightboxDelivery}
         onClose={() => setLightboxDelivery(null)}
+        onUpdateAudit={onUpdateAudit}
+        onResendWebhook={onResendWebhook}
+        resendingId={resendingId}
       />
     </div>
   );
