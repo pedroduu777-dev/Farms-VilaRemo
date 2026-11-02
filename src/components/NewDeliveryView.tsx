@@ -354,25 +354,7 @@ export const NewDeliveryView: React.FC<NewDeliveryViewProps> = ({
               </div>
             </div>
 
-            <div>
-              <label
-                htmlFor="discord-id"
-                className="block text-xs font-medium text-slate-300 mb-1.5"
-              >
-                ID do Discord (Opcional — para te marcar com notificação @ no Discord)
-              </label>
-              <input
-                id="discord-id"
-                type="text"
-                value={discordId}
-                onChange={(e) => setDiscordId(e.target.value)}
-                placeholder="Ex: 293847293847293847 ou <@293847293847293847>"
-                className="w-full px-3.5 py-2.5 bg-[#0B0F17] border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-lg text-sm font-mono text-slate-100 placeholder:text-slate-600 transition-colors"
-              />
-              <p className="text-[11px] text-slate-500 mt-1">
-                No Discord: Clique com botão direito no seu nome &gt; Copiar ID do Usuário.
-              </p>
-            </div>
+
           </div>
 
           {/* 2. Item de Farm e Baú */}
