@@ -65,6 +65,12 @@ export async function syncDeliveryToSupabase(delivery: FarmDelivery): Promise<bo
   if (!client) return false;
 
   try {
+    // If base64 photo is extremely large (> 200KB), truncate for Supabase row payload to prevent payload overflow errors
+    let sanitizedPhotoUrl = delivery.photoUrl;
+    if (sanitizedPhotoUrl && sanitizedPhotoUrl.length > 250000 && sanitizedPhotoUrl.startsWith('data:image/')) {
+      sanitizedPhotoUrl = 'seed:herbs';
+    }
+
     const payload = {
       id: delivery.id,
       player_name: delivery.playerName,
@@ -77,7 +83,7 @@ export async function syncDeliveryToSupabase(delivery: FarmDelivery): Promise<bo
       chest_location: delivery.chestLocation,
       delivered_at: delivery.deliveredAt,
       created_at: delivery.createdAt,
-      photo_url: delivery.photoUrl,
+      photo_url: sanitizedPhotoUrl,
       notes: delivery.notes || null,
       audit_status: delivery.auditStatus,
       webhook_status: delivery.webhookStatus,
@@ -94,6 +100,33 @@ export async function syncDeliveryToSupabase(delivery: FarmDelivery): Promise<bo
     return true;
   } catch (err) {
     console.warn('Falha de rede ao contatar o Supabase:', err);
+    return false;
+  }
+}
+
+export async function syncMemberToSupabase(member: MemberAccount): Promise<boolean> {
+  const client = getSupabaseClient();
+  if (!client) return false;
+
+  try {
+    const payload = {
+      id: member.id,
+      name: member.name,
+      pin: member.pin,
+      discord_id: member.discordId || null,
+      discord_thread_id: member.discordThreadId || null,
+      created_at: member.createdAt,
+      last_login_at: member.lastLoginAt,
+    };
+
+    const { error } = await client.from('members').upsert(payload, { onConflict: 'id' });
+    if (error) {
+      console.warn('Erro ao sincronizar membro no Supabase:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('Falha de rede ao salvar membro no Supabase:', err);
     return false;
   }
 }
@@ -169,6 +202,35 @@ export async function fetchDeliveriesFromSupabase(): Promise<FarmDelivery[] | nu
     }));
   } catch (err) {
     console.warn('Falha de rede ao consultar Supabase:', err);
+    return null;
+  }
+}
+
+export async function fetchMembersFromSupabase(): Promise<MemberAccount[] | null> {
+  const client = getSupabaseClient();
+  if (!client) return null;
+
+  try {
+    const { data, error } = await client
+      .from('members')
+      .select('*');
+
+    if (error || !Array.isArray(data)) {
+      console.warn('Erro ao buscar membros no Supabase:', error?.message);
+      return null;
+    }
+
+    return data.map((row) => ({
+      id: row.id,
+      name: row.name,
+      pin: row.pin,
+      discordId: row.discord_id || undefined,
+      discordThreadId: row.discord_thread_id || undefined,
+      createdAt: row.created_at,
+      lastLoginAt: row.last_login_at,
+    }));
+  } catch (err) {
+    console.warn('Falha de rede ao buscar membros no Supabase:', err);
     return null;
   }
 }

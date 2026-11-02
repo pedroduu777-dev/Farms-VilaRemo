@@ -8,7 +8,11 @@ import {
   WebhookSyncStatus,
 } from '../types/farm';
 import { dispatchDeliveryToDiscord } from './discordService';
-import { syncDeliveryToSupabase, deleteAllDeliveriesFromSupabase } from './supabaseService';
+import {
+  syncDeliveryToSupabase,
+  deleteAllDeliveriesFromSupabase,
+  syncMemberToSupabase,
+} from './supabaseService';
 
 const DELIVERIES_KEY = 'fazendalog_deliveries_store_v1';
 const CONFIG_KEY = 'fazendalog_config_store_v1';
@@ -265,6 +269,7 @@ export function loadStoredMembers(): MemberAccount[] {
 export function saveStoredMembers(members: MemberAccount[]): void {
   try {
     localStorage.setItem(MEMBERS_STORAGE_KEY, JSON.stringify(members));
+    members.forEach((m) => syncMemberToSupabase(m).catch(() => {}));
   } catch (e) {
     console.warn('Erro ao salvar membros no localStorage:', e);
   }

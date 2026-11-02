@@ -28,6 +28,7 @@ import {
   getActiveMember,
   setActiveMember,
   loadStoredMembers,
+  saveStoredMembers,
 } from './services/storageService';
 import { dispatchDeliveryToDiscord, sendDailyCrackReportToDiscord } from './services/discordService';
 import {
@@ -35,6 +36,7 @@ import {
   syncDeliveryToSupabase,
   deleteDeliveryFromSupabase,
   deleteAllDeliveriesFromSupabase,
+  fetchMembersFromSupabase,
 } from './services/supabaseService';
 import { LandingPageView } from './components/LandingPageView';
 import { UserPortalView } from './components/UserPortalView';
@@ -114,6 +116,17 @@ export function App() {
         );
         setDeliveries(merged);
         saveStoredDeliveries(merged);
+      }
+    });
+
+    fetchMembersFromSupabase().then((remoteMembers) => {
+      if (remoteMembers && remoteMembers.length > 0) {
+        const localMembers = loadStoredMembers();
+        const map = new Map<string, MemberAccount>();
+        localMembers.forEach((m) => map.set(m.id.toLowerCase(), m));
+        remoteMembers.forEach((m) => map.set(m.id.toLowerCase(), m));
+        const mergedMembers = Array.from(map.values());
+        saveStoredMembers(mergedMembers);
       }
     });
   }, []);
