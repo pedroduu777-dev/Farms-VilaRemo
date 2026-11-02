@@ -1,9 +1,6 @@
 export enum FarmCategory {
-  NARCOTICOS = 'Narcóticos & Drogas',
-  PECAS = 'Peças & Componentes de Armas',
-  MATERIAIS = 'Materiais de Armaria',
-  MUNICAO = 'Pólvora & Munição',
-  KITS = 'Kits de Montagem de Armas',
+  NARCOTICOS = 'Cloridrato de Crack',
+  SOLVENTE = 'Solvente',
 }
 
 export enum AuditStatus {

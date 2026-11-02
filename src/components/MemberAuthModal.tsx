@@ -57,20 +57,20 @@ export const MemberAuthModal: React.FC<MemberAuthModalProps> = ({
     if (isOpen) {
       setErrorMsg(null);
       setSuccessMsg(null);
+      setName('');
+      setPassportId('');
+      setDiscordId('');
       setPin('');
       setMode(initialMode);
-      if (prefilledPassportId) {
-        setPassportId(prefilledPassportId);
-      }
       setTimeout(() => {
-        if (initialMode === 'register' && !name) {
+        if (initialMode === 'register') {
           nameInputRef.current?.focus();
         } else {
           passportInputRef.current?.focus();
         }
       }, 100);
     }
-  }, [isOpen, initialMode, prefilledPassportId]);
+  }, [isOpen, initialMode]);
 
   if (!isOpen) return null;
 

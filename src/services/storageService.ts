@@ -12,7 +12,7 @@ import { syncDeliveryToSupabase, deleteAllDeliveriesFromSupabase } from './supab
 
 const DELIVERIES_KEY = 'fazendalog_deliveries_store_v1';
 const CONFIG_KEY = 'fazendalog_config_store_v1';
-const WIPE_FLAG_KEY = 'fazendalog_wipe_all_zero_v15';
+const WIPE_FLAG_KEY = 'fazendalog_wipe_all_zero_v40';
 const MEMBERS_STORAGE_KEY = 'fazendalog_members_accounts_v1';
 const ACTIVE_MEMBER_KEY = 'fazendalog_active_member_session_v1';
 
@@ -24,6 +24,7 @@ export function ensureCleanState(): void {
       localStorage.removeItem(ACTIVE_MEMBER_KEY);
       localStorage.removeItem('fazendalog_saved_player_name_v1');
       localStorage.removeItem('fazendalog_saved_passport_id_v1');
+      localStorage.removeItem('fazendalog_player_identity_v1');
       localStorage.setItem(WIPE_FLAG_KEY, 'true');
       deleteAllDeliveriesFromSupabase().catch(() => {});
     }

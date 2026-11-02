@@ -62,7 +62,7 @@ export function App() {
   const [isAdminLoginModalOpen, setIsAdminLoginModalOpen] = useState(false);
   const [isDiscordGuideOpen, setIsDiscordGuideOpen] = useState(false);
   const [isMemberAuthModalOpen, setIsMemberAuthModalOpen] = useState(false);
-  const [activeMember, setActiveMemberState] = useState<MemberAccount | null>(() => getActiveMember());
+  const [activeMember, setActiveMemberState] = useState<MemberAccount | null>(null);
 
   const [deliveries, setDeliveries] = useState<FarmDelivery[]>(() => loadStoredDeliveries());
   const [config, setConfig] = useState<DiscordWebhookConfig>(() => loadStoredConfig());
@@ -333,9 +333,9 @@ export function App() {
       id: 'TEST-0001',
       playerName: 'Teste de Canal',
       passportId: '1001',
-      itemName: 'Peças de Fuzil (AK / G3)',
-      category: FarmCategory.PECAS,
-      quantity: 500,
+      itemName: 'Cloridrato de Crack',
+      category: FarmCategory.NARCOTICOS,
+      quantity: 200,
       unit: 'unid.',
       chestLocation: 'Baú da Fac',
       deliveredAt: new Date().toISOString(),
@@ -380,7 +380,6 @@ export function App() {
           onClose={() => setIsMemberAuthModalOpen(false)}
           onSuccess={handleMemberAuthSuccess}
           initialMode={activeMember ? 'login' : 'register'}
-          prefilledPassportId={savedPassportId || activeMember?.id}
         />
 
         <DiscordBotGuideModal
@@ -393,24 +392,6 @@ export function App() {
               setIsAdminLoginModalOpen(true);
             }
           }}
-        />
-
-        {/* Member Auth Modal */}
-        <MemberAuthModal
-          isOpen={isMemberAuthModalOpen}
-          onClose={() => setIsMemberAuthModalOpen(false)}
-          onSuccess={handleMemberAuthSuccess}
-          initialMode={activeMember ? 'login' : 'register'}
-          prefilledPassportId={savedPassportId || activeMember?.id}
-        />
-
-        {/* Member Auth Modal (Registration & 4-Digit PIN Access) */}
-        <MemberAuthModal
-          isOpen={isMemberAuthModalOpen}
-          onClose={() => setIsMemberAuthModalOpen(false)}
-          onSuccess={handleMemberAuthSuccess}
-          initialMode={activeMember ? 'login' : 'register'}
-          prefilledPassportId={savedPassportId || activeMember?.id}
         />
 
         <AdminLoginModal
