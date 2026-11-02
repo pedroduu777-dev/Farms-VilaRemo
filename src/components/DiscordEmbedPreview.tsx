@@ -47,11 +47,11 @@ export const DiscordEmbedPreview: React.FC<DiscordEmbedPreviewProps> = ({
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-xs font-bold text-indigo-300 shrink-0">
-              {config.serverName ? config.serverName.slice(0, 2).toUpperCase() : 'AB'}
+              {config.serverName ? config.serverName.slice(0, 2).toUpperCase() : 'VR'}
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 text-sm font-semibold text-slate-100 truncate">
-                <span className="truncate">{config.botName || 'Abutres · Auditoria FiveM'}</span>
+                <span className="truncate">{config.botName || 'Vila Remo · Auditoria FiveM'}</span>
                 <span className="text-xs font-normal text-indigo-400 shrink-0">Webhook</span>
               </div>
               <p className="text-xs text-slate-400 font-mono tabular-nums">

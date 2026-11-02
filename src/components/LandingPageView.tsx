@@ -49,7 +49,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           </div>
           <div>
             <h1 className="text-base font-bold tracking-tight text-slate-100 leading-tight">
-              Abutres
+              Vila Remo
             </h1>
             <p className="text-[11px] font-mono text-slate-400">
               Painel de Farm · FiveM
@@ -63,7 +63,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
         {/* Subtle Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-950/60 border border-indigo-800/60 text-indigo-300 text-xs font-semibold mb-8">
           <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-          <span>Organização Abutres · Baú da Fac</span>
+          <span>Organização Vila Remo · Baú da Fac</span>
         </div>
 
         {/* Title */}
@@ -71,12 +71,12 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-100 mb-6 leading-[1.12]"
           style={{ textWrap: 'balance' }}
         >
-          Entrega de Farm Abutres
+          Entrega de Farm Vila Remo
         </h2>
 
         {/* Subtitle */}
         <p className="text-base sm:text-lg text-slate-400 max-w-xl mx-auto mb-10 leading-relaxed">
-          Deposite as peças de armas e insumos no baú da fac (Abutres), anexe a foto comprovante e confirme sua entrega.
+          Deposite as peças de armas e insumos no baú da fac (Vila Remo), anexe a foto comprovante e confirme sua entrega.
         </p>
 
         {/* SOMENTE 1 BOTÃO: "Entrega de Farm" */}
@@ -112,7 +112,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       <footer className="relative z-10 w-full px-6 py-6 border-t border-slate-900 text-xs text-slate-500">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-400">Org Abutres · FiveM</span>
+            <span className="font-semibold text-slate-400">Org Vila Remo · FiveM</span>
             <span>·</span>
             <span>Baú da Fac</span>
           </div>

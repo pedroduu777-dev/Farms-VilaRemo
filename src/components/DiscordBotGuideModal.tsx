@@ -8,6 +8,9 @@ import {
   Check,
   Send,
   Zap,
+  Hash,
+  AlertTriangle,
+  Info,
 } from 'lucide-react';
 
 interface DiscordBotGuideModalProps {
@@ -21,7 +24,7 @@ export const DiscordBotGuideModal: React.FC<DiscordBotGuideModalProps> = ({
   onClose,
   onGoToWebhookTab,
 }) => {
-  const [activeTab, setActiveTab] = useState<'webhook' | 'pinned' | 'bot'>('webhook');
+  const [activeTab, setActiveTab] = useState<'webhook' | 'pinned' | 'bot' | 'permissions'>('webhook');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   if (!isOpen) return null;
@@ -149,6 +152,17 @@ client.login('SEU_DISCORD_BOT_TOKEN');`;
           >
             3. Bot com Botão no Discord
           </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('permissions')}
+            className={`pb-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer ${
+              activeTab === 'permissions'
+                ? 'border-indigo-500 text-indigo-300'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            4. Permissões de Pastas (Cargos Altos) 🔒
+          </button>
         </div>
 
         {/* Content Body */}
@@ -162,50 +176,61 @@ client.login('SEU_DISCORD_BOT_TOKEN');`;
                 </div>
               </div>
 
+              {/* Destaque: Canal de Fórum (Cria Pastas) vs Canal de Texto Comum */}
+              <div className="p-4 bg-indigo-950/40 border border-indigo-500/40 rounded-xl space-y-3 text-xs">
+                <div className="flex items-center gap-2 font-bold text-indigo-300 text-sm">
+                  <span>📁 Como ter as Pastas Individuais criadas no Discord:</span>
+                </div>
+                <div className="space-y-2 text-slate-300 leading-relaxed text-xs">
+                  <p>
+                    <strong className="text-amber-300">1. Para criar PASTAS AUTOMÁTICAS (Recomendado):</strong> O canal no Discord deve ser do tipo <strong>Fórum</strong>. É nele que o Discord permite que o Webhook crie as pastas/tópicos <code className="bg-slate-900 px-1.5 py-0.5 rounded text-indigo-300">📁・Nome [#ID]</code> para cada membro automaticamente!
+                  </p>
+                  <p className="text-[11px] text-slate-400 pl-3 border-l-2 border-indigo-500/50">
+                    💡 <em>Dica de ouro:</em> Nas configurações do canal de Fórum no Discord, <strong>desmarque</strong> a opção "Exigir que os membros escolham uma tag". Assim o site cria a pasta do membro sozinho sem erros!
+                  </p>
+                  <p>
+                    <strong className="text-slate-300">2. Se usar Canal de Texto Normal (#):</strong> O Discord <strong>não</strong> cria pastas/tópicos automáticos por Webhook. Todas as entregas chegam como logs no chat corrido.
+                  </p>
+                </div>
+              </div>
+
               <div className="space-y-3">
-                <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">
-                  Passo a Passo (Leva menos de 1 minuto):
+                <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                  <Hash className="w-3.5 h-3.5 text-indigo-400" />
+                  Passo a Passo para Criar o Canal de Fórum com Pastas Automáticas:
                 </h4>
-                <ol className="space-y-2.5 text-xs text-slate-300">
+                <ol className="space-y-3 text-xs text-slate-300">
                   <li className="flex items-start gap-2.5">
-                    <span className="w-5 h-5 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-mono shrink-0">
+                    <span className="w-5 h-5 rounded-full bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 flex items-center justify-center font-mono shrink-0">
                       1
                     </span>
-                    <span>
-                      No seu servidor do Discord, crie ou escolha o canal desejado (ex: <code className="bg-slate-900 px-1.5 py-0.5 rounded text-indigo-300">#logs-farm</code> ou <code className="bg-slate-900 px-1.5 py-0.5 rounded text-indigo-300">#entregas-bau</code>).
-                    </span>
+                    <div>
+                      <strong className="text-slate-100">Crie o Canal:</strong> Clique no botão (+) no seu Discord e selecione o tipo <strong>💬 Fórum</strong> (ou Texto se preferir chat direto). Dê o nome de <code className="bg-slate-900 px-1 py-0.5 rounded text-indigo-300">pastas-farm</code>.
+                    </div>
                   </li>
                   <li className="flex items-start gap-2.5">
-                    <span className="w-5 h-5 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-mono shrink-0">
+                    <span className="w-5 h-5 rounded-full bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 flex items-center justify-center font-mono shrink-0">
                       2
                     </span>
-                    <span>
-                      Passe o mouse no canal e clique na engrenagem <strong>Editar Canal (⚙️)</strong>.
-                    </span>
+                    <div>
+                      <strong className="text-slate-100">Desative a exigência de tags:</strong> Nas configurações do canal de Fórum, desmarque a caixinha "Exigir tag para postar".
+                    </div>
                   </li>
                   <li className="flex items-start gap-2.5">
-                    <span className="w-5 h-5 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-mono shrink-0">
+                    <span className="w-5 h-5 rounded-full bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 flex items-center justify-center font-mono shrink-0">
                       3
                     </span>
-                    <span>
-                      Vá na aba <strong>Integrações</strong> e clique em <strong>Webhooks</strong> &gt; <strong>Novo Webhook</strong>.
-                    </span>
+                    <div>
+                      <strong className="text-slate-100">Pegue o Webhook:</strong> Vá em ⚙️ Editar Canal &gt; Integrações &gt; Webhooks &gt; Novo Webhook &gt; Copiar URL.
+                    </div>
                   </li>
                   <li className="flex items-start gap-2.5">
-                    <span className="w-5 h-5 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-mono shrink-0">
+                    <span className="w-5 h-5 rounded-full bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 flex items-center justify-center font-mono shrink-0">
                       4
                     </span>
-                    <span>
-                      Dê um nome para o bot (ex: <span className="text-slate-100 font-semibold">FazendaLog</span>) e clique no botão <strong>Copiar URL do Webhook</strong>.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="w-5 h-5 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center font-mono shrink-0">
-                      5
-                    </span>
-                    <span>
-                      Cole o link copiado na aba <strong>Webhook Discord</strong> deste painel e clique em Salvar!
-                    </span>
+                    <div>
+                      <strong className="text-slate-100">Salve no Painel:</strong> Cole o link na aba <strong>Webhook Discord</strong> e clique em Salvar. Pronto! Toda entrega cria ou vai direto para a pasta do jogador!
+                    </div>
                   </li>
                 </ol>
               </div>
@@ -284,6 +309,54 @@ client.login('SEU_DISCORD_BOT_TOKEN');`;
                     </>
                   )}
                 </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'permissions' && (
+            <div className="space-y-4 text-xs text-slate-300">
+              <div className="p-4 bg-indigo-950/20 border border-indigo-900/50 rounded-lg space-y-2">
+                <h4 className="font-semibold text-indigo-300 text-sm flex items-center gap-2">
+                  <span>🔒 Configuração de Visibilidade das Pastas no Discord</span>
+                </h4>
+                <p className="text-slate-300 leading-relaxed">
+                  Para que <strong>todas as pastas apareçam para os Cargos Altos</strong> da sua organização e <strong>apenas para a pessoa com o ID cadastrado</strong>, siga estas configurações simples no canal do Discord:
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="p-3.5 bg-[#070A10] border border-slate-800 rounded-lg space-y-2">
+                  <span className="font-semibold text-rose-300 block">
+                    1. Configuração para os Cargos Altos (Gerência / Liderança):
+                  </span>
+                  <ul className="list-disc list-inside space-y-1 text-slate-400 pl-1">
+                    <li>Vá em <strong>Editar Canal</strong> &gt; <strong>Permissões</strong>.</li>
+                    <li>Adicione o Cargo Alto (ex: <code>@Gerência</code> ou <code>@Liderança</code>).</li>
+                    <li>Ative as permissões: <strong>Ver Canal</strong>, <strong>Gerenciar Tópicos</strong> e <strong>Ler Histórico de Mensagens</strong>.</li>
+                    <li><em>Resultado:</em> Os membros com esse cargo verão <strong>todas as pastas de todos os membros</strong> automaticamente.</li>
+                  </ul>
+                </div>
+
+                <div className="p-3.5 bg-[#070A10] border border-slate-800 rounded-lg space-y-2">
+                  <span className="font-semibold text-emerald-300 block">
+                    2. Configuração para Membros Normais (@everyone):
+                  </span>
+                  <ul className="list-disc list-inside space-y-1 text-slate-400 pl-1">
+                    <li>No mesmo canal, selecione o cargo <code>@everyone</code>.</li>
+                    <li>Deixe a permissão <strong>Criar Tópicos Públicos</strong> = <span className="text-rose-400">Desativado</span>.</li>
+                    <li>Deixe <strong>Criar Tópicos Privados</strong> = <span className="text-rose-400">Desativado</span>.</li>
+                    <li>Deixe <strong>Enviar Mensagens em Tópicos</strong> = <span className="text-slate-400">Opcional</span>.</li>
+                  </ul>
+                </div>
+
+                <div className="p-3.5 bg-[#070A10] border border-slate-800 rounded-lg space-y-2">
+                  <span className="font-semibold text-indigo-300 block">
+                    3. Como a pessoa com o ID cadastrado tem acesso:
+                  </span>
+                  <p className="text-slate-400 leading-relaxed">
+                    Quando o membro se cadastra ou faz sua primeira entrega, o bot abre o tópico mencionando o Cargo Alto e o titular cadastrado (<code>&lt;@ID_Discord&gt;</code>). O Discord adiciona o membro titular <strong>apenas ao seu próprio tópico</strong>, garantindo que ele veja apenas a pasta dele e nenhum membro veja a pasta de outro.
+                  </p>
+                </div>
               </div>
             </div>
           )}

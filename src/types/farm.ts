@@ -1,4 +1,5 @@
 export enum FarmCategory {
+  NARCOTICOS = 'Narcóticos & Drogas',
   PECAS = 'Peças & Componentes de Armas',
   MATERIAIS = 'Materiais de Armaria',
   MUNICAO = 'Pólvora & Munição',
@@ -45,6 +46,7 @@ export interface FarmDelivery {
   webhookHttpCode?: number;
   webhookSentAt?: string;
   webhookError?: string;
+  discordThreadId?: string;
 }
 
 export interface DiscordWebhookConfig {
@@ -56,6 +58,7 @@ export interface DiscordWebhookConfig {
   autoSend: boolean;
   weeklyGoalPerMember: number;
   adminPin?: string;
+  enableMemberThreads?: boolean; // Cria tópico/pasta individual para cada membro no Discord
 }
 
 export interface CreateDeliveryPayload {
@@ -76,6 +79,9 @@ export interface MemberAccount {
   id: string; // Passaporte / ID do jogador (ex: "1542")
   name: string; // Nome ou Nick do jogador
   pin: string; // Senha numérica de 4 dígitos (ex: "1234")
+  discordId?: string; // ID do Discord ou arroba (ex: "1528141958856442052" ou "pedro")
   createdAt: string;
   lastLoginAt?: string;
+  discordThreadId?: string; // ID da pasta/tópico dedicada no Discord
+  discordThreadName?: string; // Nome da pasta (ex: "📁・Pedro Silva #1042")
 }

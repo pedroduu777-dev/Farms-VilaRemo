@@ -12,9 +12,16 @@ import {
   Eye,
   EyeOff,
   CheckCircle2,
+  MessageSquare,
 } from 'lucide-react';
 import { MemberAccount } from '../types/farm';
-import { registerMember, authenticateMember, loadStoredMembers } from '../services/storageService';
+import {
+  registerMember,
+  authenticateMember,
+  loadStoredConfig,
+  updateMemberThread,
+} from '../services/storageService';
+import { createMemberDiscordFolder } from '../services/discordService';
 
 interface MemberAuthModalProps {
   isOpen: boolean;
@@ -34,6 +41,7 @@ export const MemberAuthModal: React.FC<MemberAuthModalProps> = ({
   const [mode, setMode] = useState<'register' | 'login'>(initialMode);
   const [name, setName] = useState('');
   const [passportId, setPassportId] = useState(prefilledPassportId);
+  const [discordId, setDiscordId] = useState('');
   const [pin, setPin] = useState('');
   const [showPin, setShowPin] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -101,14 +109,31 @@ export const MemberAuthModal: React.FC<MemberAuthModalProps> = ({
 
       setIsLoading(true);
       setTimeout(() => {
-        const result = registerMember(cleanName, cleanId, cleanPin);
+        const result = registerMember(cleanName, cleanId, cleanPin, discordId.trim());
         setIsLoading(false);
         if (result.success && result.member) {
           setSuccessMsg(result.message);
+
+          // Dispara a criação da pasta individual de farm no Discord em background
+          try {
+            const config = loadStoredConfig();
+            if (config.autoSend && config.webhookUrl) {
+              createMemberDiscordFolder(result.member, config)
+                .then((folderRes) => {
+                  if (folderRes.ok && folderRes.threadId) {
+                    updateMemberThread(result.member!.id, folderRes.threadId);
+                  }
+                })
+                .catch(() => {});
+            }
+          } catch {
+            // Silencioso se der erro no webhook
+          }
+
           setTimeout(() => {
             onSuccess(result.member!);
             onClose();
-          }, 400);
+          }, 450);
         } else {
           setErrorMsg(result.message);
         }
@@ -166,7 +191,7 @@ export const MemberAuthModal: React.FC<MemberAuthModalProps> = ({
             </div>
             <div>
               <span className="text-[11px] font-semibold text-indigo-400 uppercase tracking-wider block">
-                Abutres · FiveM
+                Vila Remo · FiveM
               </span>
               <h3 className="text-lg font-bold text-slate-100 leading-tight">
                 {mode === 'register' ? 'Cadastro do Membro' : 'Acesso ao Painel de Farm'}
@@ -293,6 +318,32 @@ export const MemberAuthModal: React.FC<MemberAuthModalProps> = ({
               Apenas os números do seu passaporte.
             </p>
           </div>
+
+          {mode === 'register' && (
+            <div>
+              <label
+                htmlFor="member-discord-input"
+                className="block text-xs font-semibold text-slate-300 mb-1.5"
+              >
+                ID ou @ do Discord <span className="text-indigo-400 font-normal">(Para liberar sua pasta no DC)</span>
+              </label>
+              <div className="relative">
+                <MessageSquare className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  id="member-discord-input"
+                  type="text"
+                  value={discordId}
+                  onChange={(e) => setDiscordId(e.target.value)}
+                  placeholder="Ex: 1528141958856442052 ou pedroduu"
+                  className="w-full bg-[#090D16] border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors"
+                  disabled={isLoading}
+                />
+              </div>
+              <p className="text-[11px] text-slate-500 mt-1">
+                Garante que o bot mencione sua conta para você ter acesso à sua pasta privada junto com a Gerência.
+              </p>
+            </div>
+          )}
 
           <div>
             <div className="flex items-center justify-between mb-1.5">

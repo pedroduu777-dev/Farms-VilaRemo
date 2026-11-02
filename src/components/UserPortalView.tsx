@@ -9,6 +9,12 @@ import {
   Shield,
   LogOut,
   UserCheck,
+  Folder,
+  FolderCheck,
+  MessageSquare,
+  Check,
+  Edit2,
+  ShieldCheck,
 } from 'lucide-react';
 import {
   AuditStatus,
@@ -17,6 +23,7 @@ import {
   FarmDelivery,
 } from '../types/farm';
 import { formatExactDateTime, formatRelativeTime } from '../utils/farmHelpers';
+import { getActiveMember, updateMemberDiscordId } from '../services/storageService';
 import { NewDeliveryView } from './NewDeliveryView';
 import { ProofImage } from './ProofImage';
 
@@ -46,6 +53,21 @@ export const UserPortalView: React.FC<UserPortalViewProps> = ({
   onLogoutMember,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<'deliver' | 'my_history'>('deliver');
+  const [activeMemberState, setActiveMemberState] = useState(() => getActiveMember());
+  const [isEditingDiscord, setIsEditingDiscord] = useState(false);
+  const [discordInput, setDiscordInput] = useState(activeMemberState?.discordId || '');
+  const [discordNotice, setDiscordNotice] = useState<string | null>(null);
+
+  const handleSaveDiscordId = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!savedPassportId) return;
+    updateMemberDiscordId(savedPassportId, discordInput);
+    const updated = getActiveMember();
+    setActiveMemberState(updated);
+    setIsEditingDiscord(false);
+    setDiscordNotice('ID do Discord vinculado com sucesso! Agora você será adicionado na sua pasta no Discord.');
+    setTimeout(() => setDiscordNotice(null), 4000);
+  };
 
   // Filter deliveries belonging to this player
   const myDeliveries = useMemo(() => {
@@ -138,6 +160,109 @@ export const UserPortalView: React.FC<UserPortalViewProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Member Dedicated Folder Card */}
+        {savedPlayerName && (
+          <div className="mt-5 pt-5 border-t border-slate-800/80 bg-[#0B0F17]/60 border border-indigo-950/80 rounded-xl p-4 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-300 font-bold shrink-0">
+                  📁
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-slate-100">
+                      Sua Pasta Individual: 📁・{savedPlayerName} [#{savedPassportId}]
+                    </h3>
+                    {activeMemberState?.discordThreadId ? (
+                      <span className="text-[10px] font-semibold text-emerald-300 bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        Pasta Aberta no Discord
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-semibold text-indigo-300 bg-indigo-950/60 border border-indigo-800/60 px-2 py-0.5 rounded-full">
+                        Vinculada ao seu ID #{savedPassportId}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Todas as entregas que você fizer com este passaporte serão salvas automaticamente dentro desta pasta.
+                  </p>
+                </div>
+              </div>
+
+              <span className="text-xs font-mono text-slate-300 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-md self-start sm:self-auto">
+                {myDeliveries.length} comprovantes na sua pasta
+              </span>
+            </div>
+
+            {/* Privacy & Role Access Notice */}
+            <div className="bg-[#090D16] border border-slate-800/80 rounded-lg p-3 text-xs text-slate-300 flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>
+                  <strong>Acesso Restrito:</strong> Esta pasta aparece apenas para você (<span className="text-indigo-300 font-mono">ID #{savedPassportId}</span>) e para os <strong className="text-rose-300">Cargos Altos da Gerência</strong> no Discord.
+                </span>
+              </div>
+
+              {/* Discord Account Link */}
+              <div className="flex items-center gap-2 shrink-0">
+                {isEditingDiscord ? (
+                  <form onSubmit={handleSaveDiscordId} className="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      value={discordInput}
+                      onChange={(e) => setDiscordInput(e.target.value)}
+                      placeholder="ID ou @ do Discord"
+                      className="px-2.5 py-1 bg-slate-900 border border-slate-700 rounded text-xs text-slate-100 placeholder-slate-500 w-36 focus:outline-none focus:border-indigo-500 font-mono"
+                      autoFocus
+                    />
+                    <button
+                      type="submit"
+                      className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-xs font-semibold cursor-pointer"
+                    >
+                      Salvar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingDiscord(false)}
+                      className="px-2 py-1 bg-slate-800 text-slate-400 hover:text-slate-200 rounded text-xs cursor-pointer"
+                    >
+                      Cancelar
+                    </button>
+                  </form>
+                ) : (
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <MessageSquare className="w-3.5 h-3.5 text-indigo-400" />
+                    <span className="text-slate-400">Discord:</span>
+                    <span className="font-mono text-slate-200">
+                      {activeMemberState?.discordId ? (
+                        activeMemberState.discordId.startsWith('<@') ? activeMemberState.discordId : `@${activeMemberState.discordId}`
+                      ) : (
+                        <span className="text-slate-500 italic">Não vinculado</span>
+                      )}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingDiscord(true)}
+                      className="p-1 text-slate-400 hover:text-indigo-300 cursor-pointer"
+                      title="Editar Discord para ser marcado na pasta"
+                    >
+                      <Edit2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {discordNotice && (
+              <div className="p-2.5 rounded-lg bg-emerald-950/40 text-emerald-200 border border-emerald-800/60 text-xs flex items-center gap-2">
+                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>{discordNotice}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* User Navigation Pills */}
         <div className="flex items-center gap-2 mt-6 pt-4 border-t border-slate-800/80">
@@ -297,7 +422,7 @@ export const UserPortalView: React.FC<UserPortalViewProps> = ({
 
       {/* Subtle Footer with Hidden Admin Trigger */}
       <div className="pt-8 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-500">
-        <span>Painel do Membro · Organização Abutres</span>
+        <span>Painel do Membro · Organização Vila Remo</span>
 
         {/* Hidden/Secret Admin entrance button */}
         <button

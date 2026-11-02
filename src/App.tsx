@@ -27,12 +27,14 @@ import {
   saveStoredDeliveries,
   getActiveMember,
   setActiveMember,
+  loadStoredMembers,
 } from './services/storageService';
-import { dispatchDeliveryToDiscord } from './services/discordService';
+import { dispatchDeliveryToDiscord, sendDailyCrackReportToDiscord } from './services/discordService';
 import {
   fetchDeliveriesFromSupabase,
   syncDeliveryToSupabase,
   deleteDeliveryFromSupabase,
+  deleteAllDeliveriesFromSupabase,
 } from './services/supabaseService';
 import { LandingPageView } from './components/LandingPageView';
 import { UserPortalView } from './components/UserPortalView';
@@ -115,6 +117,32 @@ export function App() {
       }
     });
   }, []);
+
+  // Rotina automática de Fechamento Diário das 23:50 (Meta 200 Crack)
+  useEffect(() => {
+    const checkDailyTimer = () => {
+      const now = new Date();
+      // Verifica se é 23:50
+      if (now.getHours() === 23 && now.getMinutes() === 50) {
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const lockKey = `fazendalog_crack_report_auto_sent_${todayStr}`;
+        if (!localStorage.getItem(lockKey)) {
+          localStorage.setItem(lockKey, 'true');
+          const membersList = loadStoredMembers();
+          sendDailyCrackReportToDiscord(deliveries, membersList, config).then((res) => {
+            if (res.ok) {
+              showToast('success', 'Relatório diário das 23:50 (Meta 200 Crack) enviado ao Discord com sucesso!');
+            }
+          });
+        }
+      }
+    };
+
+    // Executa verificação a cada 30 segundos
+    const timer = setInterval(checkDailyTimer, 30000);
+    checkDailyTimer(); // Verifica ao montar
+    return () => clearInterval(timer);
+  }, [deliveries, config, showToast]);
 
   // Secret keyboard shortcut to trigger Admin Login: Ctrl + Shift + A
   useEffect(() => {
@@ -281,6 +309,7 @@ export function App() {
 
   const handleResetAllDeliveries = () => {
     clearAllDeliveries();
+    deleteAllDeliveriesFromSupabase().catch(() => {});
     setDeliveries([]);
     setSelectedDelivery(null);
     showToast('success', 'Todos os registros de entrega foram zerados com sucesso.');
@@ -404,7 +433,7 @@ export function App() {
             onClick={() => setViewMode('landing')}
             className="text-base font-bold tracking-tight text-slate-100 hover:text-indigo-300 transition-colors cursor-pointer"
           >
-            Abutres
+            Vila Remo
           </button>
 
           <span className="text-slate-700 hidden sm:inline">|</span>

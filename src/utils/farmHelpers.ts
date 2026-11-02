@@ -2,6 +2,14 @@ import { FarmCatalogItem, FarmCategory, FarmDelivery } from '../types/farm';
 
 export const FARM_CATALOG: FarmCatalogItem[] = [
   {
+    id: 'cloridrato-crack',
+    name: 'Cloridrato de Crack',
+    category: FarmCategory.NARCOTICOS,
+    unit: 'unid.',
+    suggestedChest: 'Baú da Fac',
+    defaultBatch: 200,
+  },
+  {
     id: 'pecas-fuzil',
     name: 'Peças de Fuzil (AK / G3 / Special)',
     category: FarmCategory.PECAS,

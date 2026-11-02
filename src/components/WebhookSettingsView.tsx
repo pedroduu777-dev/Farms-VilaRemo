@@ -8,6 +8,8 @@ import {
   Check,
   Terminal,
   HelpCircle,
+  FolderGit2,
+  FolderOpen,
 } from 'lucide-react';
 import { DiscordWebhookConfig, FarmCategory } from '../types/farm';
 import { DiscordEmbedPreview } from './DiscordEmbedPreview';
@@ -227,7 +229,7 @@ end)`;
                 onChange={(e) =>
                   setFormState((prev) => ({ ...prev, serverName: e.target.value }))
                 }
-                placeholder="Abutres"
+                placeholder="Vila Remo"
                 className="w-full px-3.5 py-2.5 bg-[#0B0F17] border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-lg text-sm text-slate-100"
               />
             </div>
@@ -239,7 +241,7 @@ end)`;
                 htmlFor="role-mention"
                 className="block text-xs font-medium text-slate-300 mb-1.5"
               >
-                Menção no Canal (Opcional)
+                Menção do Cargo Alto (Gerência / Liderança)
               </label>
               <input
                 id="role-mention"
@@ -248,9 +250,12 @@ end)`;
                 onChange={(e) =>
                   setFormState((prev) => ({ ...prev, roleMention: e.target.value }))
                 }
-                placeholder="Ex: <@&112233445566> ou @Gerência"
+                placeholder="Ex: <@1528141958856442052> ou @Gerência"
                 className="w-full px-3.5 py-2.5 bg-[#0B0F17] border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-lg text-sm font-mono text-slate-100 placeholder:text-slate-600"
               />
+              <p className="text-[11px] text-slate-500 mt-1">
+                Este cargo é mencionado na criação de cada pasta, garantindo que os Cargos Altos tenham acesso a todas as pastas de farm no Discord.
+              </p>
             </div>
 
             <div>
@@ -311,7 +316,7 @@ end)`;
           </div>
 
           {/* Auto-send toggle */}
-          <label className="flex items-center justify-between gap-4 py-3 border-y border-slate-800/80 cursor-pointer">
+          <label className="flex items-center justify-between gap-4 py-3 border-t border-slate-800/80 cursor-pointer">
             <div>
               <span className="text-sm font-medium text-slate-200 block">
                 Disparo automático ao registrar farm
@@ -329,6 +334,41 @@ end)`;
               className="w-4 h-4 accent-indigo-600 rounded cursor-pointer shrink-0"
             />
           </label>
+
+          {/* Member Folders / Threads toggle */}
+          <div className="p-4 bg-indigo-950/20 border border-indigo-500/20 rounded-xl space-y-3">
+            <label className="flex items-start justify-between gap-4 cursor-pointer">
+              <div className="flex items-start gap-3">
+                <FolderOpen className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-sm font-medium text-slate-200 block">
+                    Criar Pasta Individual de Farm para Cada Membro
+                  </span>
+                  <span className="text-xs text-slate-400 leading-relaxed block mt-0.5">
+                    Quando um membro se cadastra, o Discord cria automaticamente um tópico/pasta no canal (ex: <code className="text-indigo-300 font-mono">📁・[FARM] Nick #ID</code>). Todas as entregas desse membro são arquivadas dentro da pasta dele!
+                  </span>
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                checked={formState.enableMemberThreads !== false}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    enableMemberThreads: e.target.checked,
+                  }))
+                }
+                className="w-4 h-4 accent-indigo-600 rounded cursor-pointer shrink-0 mt-1"
+              />
+            </label>
+
+            <div className="text-[11px] text-slate-400 bg-[#090D16] p-2.5 rounded-lg border border-slate-800/80 space-y-1">
+              <span className="font-semibold text-indigo-300 block">💡 Dica de Organização no Discord:</span>
+              <p>
+                Para ter o layout perfeito de pastas no Discord, crie um canal do tipo <strong>Fórum</strong> (ex: <code className="text-slate-300">📁・pastas-de-farm</code>) e gere o Webhook nele. Cada membro terá sua própria postagem/pasta organizada!
+              </p>
+            </div>
+          </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <button

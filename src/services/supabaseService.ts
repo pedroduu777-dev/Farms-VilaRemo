@@ -115,6 +115,23 @@ export async function deleteDeliveryFromSupabase(id: string): Promise<boolean> {
   }
 }
 
+export async function deleteAllDeliveriesFromSupabase(): Promise<boolean> {
+  const client = getSupabaseClient();
+  if (!client) return false;
+
+  try {
+    const { error } = await client.from('deliveries').delete().neq('id', 'NONE_EXISTS_99999');
+    if (error) {
+      console.warn('Erro ao deletar todas as entregas no Supabase:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('Falha de rede ao limpar Supabase:', err);
+    return false;
+  }
+}
+
 export async function fetchDeliveriesFromSupabase(): Promise<FarmDelivery[] | null> {
   const client = getSupabaseClient();
   if (!client) return null;
